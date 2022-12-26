@@ -1,0 +1,510 @@
+<!--
+    EXAMEN FINAL
+    MODIFICAR LO NECESARIO PARA CUMPLIR CON LOS REQUERIMIENTOS
+    SE TIENE UNA DESCRIPCION APROXIMADA DE LO QUE SE REQUIERE EN CADA FUNCION; SIN EMBARGO
+    ES LIBRE DE UTILIZAR LOS METODOS Y PROCEDIMIENTOS QUE SEAN MAS COMODOS PARA USTED
+    ÉXITOS! :)
+-->
+
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <title>Dashboard</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+
+        <script>
+            addEventListener('DOMContentLoaded', () => {               
+                var fecha = new Date();
+                fechaActual = formatoFecha(fecha, 'yyyy-mm-dd');
+                console.log('Fecha actual', fechaActual)
+
+                // info inputs de fecha
+                var dateControl = document.querySelector('input[name="fecha_creacion_guardar"]');
+                dateControl.value = fechaActual;
+                dateControl.setAttribute('min', fechaActual);
+
+                var dateControl = document.querySelector('input[name="fecha_entrega_guardar"]');
+                dateControl.value = fechaActual;
+                dateControl.setAttribute('min', fechaActual);
+
+                var dateControl = document.querySelector('input[name="fecha_creacion_editar"]');
+                dateControl.value = fechaActual;
+                dateControl.setAttribute('min', fechaActual);
+
+                var dateControl = document.querySelector('input[name="fecha_entrega_editar"]');
+                dateControl.value = fechaActual;
+                dateControl.setAttribute('min', fechaActual);
+               
+                function formatoFecha(fecha, formato) {
+                    const map = {
+                        dd: fecha.getDate(),
+                        mm: fecha.getMonth() + 1,
+                        yyyy: fecha.getFullYear(),
+                    }
+                    return formato.replace(/dd|mm|yyyy/gi, matched => map[matched])
+                }
+            })
+
+            //PREGUNTA 1 IMPLEMENTACION DE LA FUNCION PARA MOSTRAR EL DETALLE DE LA TAREA
+            /*
+            En esta funcion se recomienda seguir los siguientes pasos
+            -Al capturar el id de la tarea dentro de un string, desarrollar la funcion obtener_info_tarea en el server
+            que permita capturar el id de la tarea y devoler un objeto JSON con dicha informacion
+            -Realizar la funcion fetch correspondiente al interior de mostrarDetalle y captura la
+            informacion devuelta desde el servidor
+            -Obtener los elementos HTML internos de la venta o crearlos utilizando javascript y anexar
+            la informacion recibida en el objeto JSON
+            -Las modificaciones realizadas en el codigo se mostraran de forma instantanea en la ventana
+            */
+           function mostrarDetalle(id_tarea)
+           {
+            console.log(id_tarea)
+            
+            data_split = id_tarea.split('-')
+            console.log('split:', data_split)
+            id_tarea = data_split[1]
+
+            fetch(`http://127.0.0.1:8000/examenFinal/info_Tarea?tarea=${id_tarea}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                let cuerpoTabla = document.getElementById('cuerpoTabla')
+                let datosTabla = ['ID','Fecha Creacion','Fecha Entrega','Descripcion','Estado']
+                cuerpoTabla.innerHTML = ''
+                for(let i = 0; i < data.dato.length; i++)
+                {
+                    if (i == 4) {
+                        let estado = ''
+                        if (data.dato[i] == '0') {
+                            estado = 'Pendiente'
+                        } else if (data.dato[i] == '1') {
+                            estado = 'Completado'
+                        } else if (data.dato[i] == '2') {
+                            estado = 'Cancelado'
+                        } 
+                        data.dato[i] = estado;
+                    }
+                    cuerpoTabla.innerHTML += `
+                    <tr>
+                        <td>${datosTabla[i]}</td>
+                        <td>${data.dato[i]}</td>
+                    </tr>
+                    `
+                }
+            })
+           }
+
+           /*
+           Para eliminar la informacion al interior de la ventana mostrar detalle capturar los elementos
+           apropiados y eliminar los datos al interior de su propiedad innerHTML, recordar que para capturar
+           los elementos lo puede realizar con la funcion querySelector, getElementByID, etc.
+           No olvide darle las propiedades ID, name, class, etc ... a los elementos HTML para su correspondiente
+           captura.
+           */
+           function eliminarDetalle()
+           {
+            console.log('')
+            let cuerpoTabla = document.getElementById('cuerpoTabla')
+            cuerpoTabla.innerHTML = ''
+           }
+
+           //PREGUNTA 2-1
+           /*
+           La funcion nuevaTarea permite capturar la informacion al interior de la ventana modal
+           Luego de capturar la informacion se debe enviar la informacion al servidor a traves
+           de fetch y guardar la informacion enviada en el servidor
+           Al recibir la confirmacion del servidor se debe eliminar la totalidad de informacion
+           al interior de la venta
+           No olvidar agregar los datos principales a la tabla con javascript, capturar la tabla y
+           anexar los datos de la nueva tarea como una fila nueva
+           Al infalizar el codigo recordar eliminar la informacion al interior de los inputs definidos
+           */
+           function nuevaTarea()
+           {
+            console.log('Crear nueva tarea')
+            //Escribir su codigo aqui
+            let fecha_creacion = document.querySelector('input[name="fecha_creacion_guardar"]');
+            let fecha_entrega = document.querySelector('input[name="fecha_entrega_guardar"]');
+            let descripcion = document.querySelector('input[name="descripcion_guardar"]');
+            let estado = document.querySelector('select[name="estado_guardar"]');            
+            url = '/examenFinal/agregar_Tarea'
+            infoTarea = {                
+                'fecha_creacion':fecha_creacion.value,
+                'fecha_entrega':fecha_entrega.value,
+                'descripcion':descripcion.value,
+                'estado':estado.value
+            }
+
+            fetch(url,{
+                method:"POST",
+                headers: {
+                    "X-Request-With": "XMLHttpRequest",
+                    "X-CSRFToken": getCookie("csrftoken"),
+                },
+                body:JSON.stringify(infoTarea)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                let estado = ''
+                if (infoTarea.estado == '0') {
+                    estado = '<h6><span class="badge bg-danger">Pendiente</span></h6>'
+                } else if (infoTarea.estado == '1') {
+                    estado = '<h6><span class="badge bg-success">Completado</span></h6>'
+                } else if (infoTarea.estado == '2') {
+                    estado = '<h6><span class="badge bg-warning">Cancelado</span></h6>'
+                }
+                let tablaListarTareas = document.getElementById('tablaListarTareas')
+                tablaListarTareas.innerHTML +=`
+                <tr>
+                    <td>${infoTarea.fecha_creacion}</td>
+                    <td>${infoTarea.fecha_entrega}</td>
+                    <td>${estado}</td>
+                    <td style="text-align: center;"><a id="detalle-${data.tarea.id_tarea}" class="btn btn-info" style="color: black;" data-bs-toggle="modal" data-bs-target="#verDetalle" onclick="mostrarDetalle(this.id)"><i class="fa fa-eye"></i></a></td>
+                    <td style="text-align: center;"><a id="editar-${data.tarea.id_tarea}" class="btn btn-warning" style="color: black;" data-bs-toggle="modal" data-bs-target="#editarTarea" onclick="editarTarea(this.id)"><i class="fa fa-edit"></i></a></td>
+                    <td style="text-align: center;"><a id="eliminar-${data.tarea.id_tarea}" class="btn btn-danger" style="color: white;" onclick="eliminarTarea(this.id)"><i class="fa fa-trash"></i></a></td>
+                </tr>`              
+                eliminarNuevo();
+            })
+            //Fin del codigo
+
+            $(".modal-backdrop").remove();
+            $('#nuevaTarea').hide()
+           }
+
+           function eliminarNuevo()
+           {
+                let fecha_creacion = document.querySelector('input[name="fecha_creacion_guardar"]'); 
+                let fecha_entrega = document.querySelector('input[name="fecha_entrega_guardar"]');
+                let descripcion = document.querySelector('input[name="descripcion_guardar"]');
+                let estado = document.querySelector('select[name="estado_guardar"]');
+
+                fecha_actual = fecha_creacion.value
+                fecha_entrega.value = fecha_actual
+                descripcion.value = ''
+                estado.value = '0'
+           }
+           
+           //PREGUNTA 2-2
+           /*
+           Se recepciona el id de la tarea a eliminar
+           Esta funcion debe enviar la informacion al servidor a traves de una instruccion fetch
+           En el servidor se debe eliminar la tarea de la base de datos y enviar una confirmacion de vuelta
+           a la vista
+           La funcion fetch deberá de recibir dicha confirmacion y eliminará la tarea de la tabla
+           */
+           function eliminarTarea(id_tarea)
+           {
+            console.log(id_tarea)
+            
+            data_split = id_tarea.split('-')
+            console.log('split:', data_split)
+            id_tarea = data_split[1]
+
+            fetch(`http://127.0.0.1:8000/examenFinal/eliminar_Tarea?tarea=${id_tarea}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                window.location.assign('/examenFinal/dashboard')
+            })
+           }
+
+           //PREGUNTA 2-3
+           /*
+           Esta funcion recibe el id de la tarea correspondiente
+           Con el id de la tarea obtener la informacion desde el servidor
+           utilizando la funcion fetch
+           Con la informacion capturada agregar dicha informacion a los inputs definidos en la vista modal
+           Se recomienda crear un input con propiedad readonly en donde el id de la tarea sea mostrado,
+           esto debido a que al presionar el boton Actualizar se deberá enviar la informacion al servidor a traves de un formulario
+           y se requiere el id de la tarea para modificar sus parametros
+           */
+           function editarTarea(id_tarea)
+           {
+            console.log(id_tarea)
+            //El codigo inicia aqui
+           
+            data_split = id_tarea.split('-')
+            console.log('split:', data_split)
+            id_tarea = data_split[1]
+
+            fetch(`http://127.0.0.1:8000/examenFinal/info_Tarea?tarea=${id_tarea}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                let id_tarea = document.querySelector('input[name="id_tarea_editar"]');
+                let fecha_creacion = document.querySelector('input[name="fecha_creacion_editar"]');
+                let fecha_entrega = document.querySelector('input[name="fecha_entrega_editar"]');
+                let descripcion = document.querySelector('input[name="descripcion_editar"]');
+                let estado = document.querySelector('select[name="estado_editar"]');
+
+                id_tarea.value = data.dato[0]
+                fecha_creacion.value = data.dato[1]
+                fecha_entrega.value = data.dato[2]
+                descripcion.value = data.dato[3]
+                estado.value = data.dato[4]
+            })
+
+            //Fin del codigo
+           }
+
+           function actualizarTarea()
+           {
+            console.log('Actualizar nueva tarea')
+            //Escribir su codigo aqui
+            let id_tarea = document.querySelector('input[name="id_tarea_editar"]');
+            let fecha_creacion = document.querySelector('input[name="fecha_creacion_editar"]');
+            let fecha_entrega = document.querySelector('input[name="fecha_entrega_editar"]');
+            let descripcion = document.querySelector('input[name="descripcion_editar"]');
+            let estado = document.querySelector('select[name="estado_editar"]');
+
+            url = '/examenFinal/actualizar_Tarea'
+            infoTarea = {
+                'id_tarea':id_tarea.value,
+                'fecha_creacion':fecha_creacion.value,
+                'fecha_entrega':fecha_entrega.value,
+                'descripcion':descripcion.value,
+                'estado':estado.value
+            }
+
+            fetch(url,{
+                method:"POST",
+                headers: {
+                    "X-Request-With": "XMLHttpRequest",
+                    "X-CSRFToken": getCookie("csrftoken"),
+                },
+                body:JSON.stringify(infoTarea)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                window.location.assign('/examenFinal/dashboard')                
+            })
+            //Fin del codigo
+           }
+
+           function getCookie(name)
+           {
+               let cookieValue = null;
+               if(document.cookie && document.cookie !== "")
+               {
+                   const cookies = document.cookie.split(";")
+                   for(let i=0;i < cookies.length; i++)
+                   {
+                       const cookie = cookies[i].trim();
+                       if((cookie.substring(0,name.length + 1 )) === (name + '='))                       
+                       {
+                           cookieValue = decodeURIComponent(cookie.substring(name.length + 1))
+                           break;
+                       }
+                   }
+               }
+               return cookieValue;
+           }
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row alert alert-info text-center">
+                <h3>GESTOR DE TAREAS</h3>
+            </div> 
+            <br>             
+            <div>
+                <a class="btn btn-outline-success float-start" style="color: black;" data-bs-toggle="modal" data-bs-target="#nuevaTarea"> Nuevo Tarea  <i class="fa fa-plus"></i></a>                
+            </div>
+            <br>
+            <br>
+            <table class="table table-bordered table-hover text-center" style="font-size: 16px;">
+                <thead class="table-dark text-center">                   
+                        <th scope="col">ID de Tarea</th>                      
+                        <th scope="col">Fecha de Creacion</th>
+                        <th scope="col">Fecha de Entrega</th>
+                        <th scope="col">Estado de la Tarea</th>
+                        <th scope="col">Ver Detalle</th>
+                        <th scope="col">Editar Tarea</th>
+                        <th scope="col">Eliminar Tarea</th>                    
+                </thead>
+                <tbody id="tablaListarTareas">
+                {% for tarea in tareas_totales %}
+                    <tr>
+                        <td>{{ tarea.id }}</td>
+                        <td>{{ tarea.fechaCreacion }}</td>
+                        <td>{{ tarea.fechaEntrega }}</td>
+                        <td>
+                            {% if tarea.estadoTarea == '0' %}
+                                <h6><span class="badge bg-danger" >Pendiente</span></h6>
+                            {% elif tarea.estadoTarea == '1' %}
+                                <h6><span class="badge bg-success">Completado</span></h6>
+                            {% elif tarea.estadoTarea == '2' %}
+                                <h6><span class="badge bg-warning">Cancelado</span></h6>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;"><a id="detalle-{{ tarea.id }}" class="btn btn-info" style="color: black;" data-bs-toggle="modal" data-bs-target="#verDetalle" onclick="mostrarDetalle(this.id)"><i class="fa fa-eye"></i></a></td>
+                        <td style="text-align: center;"><a id="editar-{{ tarea.id }}" class="btn btn-warning" style="color: black;" data-bs-toggle="modal" data-bs-target="#editarTarea" onclick="editarTarea(this.id)"><i class="fa fa-edit"></i></a></td>
+                        <td style="text-align: center;"><a id="eliminar-{{ tarea.id }}" class="btn btn-danger" style="color: white;" onclick="eliminarTarea(this.id)"><i class="fa fa-trash"></i></a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>                
+            </table>
+            <br>            
+            <br>
+            <div>
+                <a class="btn btn-outline-danger float-end" style="color: black;" href="{% url 'examenFinal:index' %}">  Salir  <i class="fa fa-window-close"> </i></a>
+            </div>
+            </div>            
+        </div>
+    </body>
+</html>
+
+<!--VENTANA MODAL NUEVA TAREA-->
+<!--
+    Crear los inputs necesarios para capturar la informacion para crear una nueva tarea
+    Cada input debe contar con su respectivo id, name, class, etc ... para su captura en el codigo javascript
+    Para esta actividad la tarea tiene Fecha de creacion, Fecha de entrega, Estado de tarea y Descripcion
+    Recordar eliminar la informacion al interior de los input cuando la tarea haya sido guardada.
+-->
+<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" id="nuevaTarea">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Agregar Tarea</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="eliminarNuevo()"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <thead class="table-dark">
+                        <th>Caracteristica</th>
+                        <th>Valor</th>
+                    </thead>
+                    <tbody>
+                        {% csrf_token %}
+                        <tr>
+                            <td> <label for="fecha_crecion">Fecha Creacion</label> </td>
+                            <td> <input type="date" class="form-control" name="fecha_creacion_guardar" min="" placeholder="Ingrese fecha creacion" disabled> </td>
+                        </tr>
+                        <tr>
+                            <td> <label for="fecha_entrega">Fecha Entrega</label> </td>
+                            <td> <input type="date" class="form-control" name="fecha_entrega_guardar" min="" placeholder="Ingrese fecha entrega"> </td>
+                        </tr>
+                        <tr>
+                            <td> <label for="descripcion">Descripcion</label> </td>
+                            <td> <input type="input" class="form-control" name="descripcion_guardar" placeholder="Ingrese descripcion"> </td>
+                        </tr>
+                        <tr>
+                            <td> <label for="estado">Estado</label> </td>
+                            <td>
+                                <select class="form-select" name="estado_guardar">
+                                    <option value="0">Pendiente</option>
+                                    <option value="1">Completado</option>
+                                    <option value="2">Cancelado</option>                                    
+                                </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="eliminarNuevo()">Cancelar</button>
+                <button type="submit" class="btn btn-success" onclick="nuevaTarea()">Agregar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--VENTANA MODAL EDITAR TAREA-->
+<!--
+    Esta ventana debe cargar la informacion de la tarea correspondiente
+    Desarrollar los inputs apropiados para mostrar dicha informacion y que sea editable
+    El usuario luego de editar la informacion debe presionar el boton Actualizar y la informacion de los input
+    se enviará hacia el servidor. Definir un formulario para esta vista, esta es la unica funcionalidad
+    que permita el refresco de la vista
+    No olvidar crear un input readonly para mostrar el id de la tarea y enviarla al servidor
+-->
+<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" id="editarTarea">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Tarea</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <thead class="table-dark">
+                        <th>Caracteristica</th>
+                        <th>Valor</th>
+                    </thead>
+                    <tbody>
+                        {% csrf_token %}
+                        <tr>
+                            <td> <label for="id_tarea">ID</label> </td>
+                            <td> <input type="input" class="form-control" name="id_tarea_editar" min="" placeholder="Ingrese ID" readonly> </td>
+                        </tr>
+                        <tr>
+                            <td> <label for="fecha_creacion">Fecha Creacion</label> </td>
+                            <td> <input type="date" class="form-control" name="fecha_creacion_editar" min="" placeholder="Ingrese fecha creacion" disabled> </td>
+                        </tr>
+                        <tr>
+                            <td> <label for="fecha_entrega">Fecha Entrega</label> </td>
+                            <td> <input type="date" class="form-control" name="fecha_entrega_editar" min="" placeholder="Ingrese fecha entrega"> </td>
+                        </tr>
+                        <tr>
+                            <td> <label for="descripcion">Descripcion</label> </td>
+                            <td> <input type="input" class="form-control" name="descripcion_editar" placeholder="Ingrese descripcion"> </td>
+                        </tr>
+                        <tr>
+                            <td> <label for="estado">Estado</label> </td>
+                            <td>
+                                <select class="form-select" name="estado_editar">
+                                    <option value="0">Pendiente</option>
+                                    <option value="1">Completado</option>
+                                    <option value="2">Cancelado</option>
+                                    </select>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-success" onclick="actualizarTarea()">Actualizar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--VENTANA MODAL MOSTRAR DETALLE-->
+<!--
+    REALIZAR LAS MODIFICACIONES NECESARIAS, POR EJEMPLO
+    -COLOCAR LOS PARAMETROS name, id, class, ETC PARA LA CAPTURA DE LOS ELEMENTOS
+    EN EL CODIGO JAVASCRIPT
+    -SE PUEDE CREAR UNA ESTRUCTURA PREVIA Y LUEGO SOLO COMPLETAR LOS DATOS AL INTERIOR DEL CÓDIGO JAVASCRIPT
+    -RECORDAR ELIMINAR LOS DATOS LUEGO DE CERRAR LA VENTANA UTILIZANDO LA FUNCION ASOCIADA A LOS BOTONES
+    CERRAR Y CLOSE
+-->
+<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" id="verDetalle">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalle de la Tarea</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="eliminarDetalle()"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <thead class="table-dark">
+                        <th>Caracteristica</th>
+                        <th>Valor</th>
+                    </thead>
+                    <tbody id="cuerpoTabla">
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" onclick="eliminarDetalle()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
